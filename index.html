@@ -528,7 +528,10 @@
 
             let countdownInterval = null;
             const countdownEl = document.getElementById('warpCountdown');
-            const targetDate = new Date(2025, 9, 4, 0, 0, 0);
+            
+            // Data alvo: 4 de outubro de 2025, 18:00 horário de Brasília (BRT, UTC-3)
+            // Criamos a data em UTC e depois ajustamos para BRT manualmente
+            const targetDate = new Date('2025-10-04T18:00:00-03:00');
 
             function formatTwo(n){ return String(Math.max(0, Math.floor(n))).padStart(2,'0'); }
 
@@ -627,7 +630,7 @@
     <script>
         // ⚠️ IMPORTANTE: Você precisa substituir os UUIDs abaixo pelos UUIDs REAIS de cada jogador!
         // Para obter o UUID correto:
-        // 1. Acesse: https://mcuuid.net/
+        // 1. Acesse: [https://mcuuid.net/](https://mcuuid.net/)
         // 2. Digite o nome do jogador Minecraft (ex: "BloodyBody")
         // 3. Copie o UUID que aparece (formato: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
         // 4. Substitua nos valores "skin" abaixo
@@ -686,4 +689,3 @@
     </script>
 </body>
 </html>
-
