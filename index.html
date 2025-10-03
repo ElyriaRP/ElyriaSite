@@ -123,7 +123,6 @@
             text-shadow: 0 2px 6px rgba(0,0,0,0.6);
         }
 
-        /* Nova regra: logo no topo do overlay (área do quadrado vermelho) */
         .overlay-logo{
             position: absolute;
             top: 18px;
@@ -139,14 +138,12 @@
             animation: logo-float 3.8s ease-in-out infinite;
         }
 
-        /* animação up/down suave */
         @keyframes logo-float{
             0%   { transform: translateX(-50%) translateY(0); }
             50%  { transform: translateX(-50%) translateY(-8px); }
             100% { transform: translateX(-50%) translateY(0); }
         }
 
-        /* respeitar preferência do usuário para reduzir movimento */
         @media (prefers-reduced-motion: reduce){
             .overlay-logo{
                 animation: none;
@@ -242,7 +239,6 @@
             border:1px solid rgba(127,231,255,0.12);
         }
 
-        /* Modal Twitch único */
         .twitch-modal {
             display: none;
             position: fixed;
@@ -294,7 +290,6 @@
             }
         }
 
-        /* Botão flutuante Twitch - OCULTO INICIALMENTE */
         .twitch-floating {
             position:fixed;
             right:20px;
@@ -389,7 +384,6 @@
         </div>
     </div>
 
-    <!-- Botão flutuante Twitch -->
     <a class="twitch-floating" id="twitchBtn" href="#" aria-label="Abrir canais Twitch">
         <svg class="twitch-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
             <path fill="currentColor" d="M4 3v13.5h3V21l3.5-3.5H14L20 13V3H4zm14 9.5l-3 2.25H9.5L7 17.75V5h11v7.5zM10.25 8.75h1.5v4.25h-1.5V8.75zm3.75 0h1.5v4.25h-1.5V8.75z"/>
@@ -397,7 +391,6 @@
         <span class="twitch-label">Twitch</span>
     </a>
 
-    <!-- Modal Twitch com lista de canais -->
     <div class="twitch-modal" id="twitchModal" tabindex="-1" aria-modal="true" aria-hidden="true" role="dialog">
         <div class="twitch-modal-box" role="document" style="min-width:320px;">
             <button class="twitch-modal-close" id="twitchModalClose" aria-label="Fechar">&times;</button>
@@ -526,7 +519,6 @@
                 }, 5200);
                 startCountdown();
                 
-                // EXIBE O BOTÃO TWITCH APÓS ACESSO CORRETO (delay reduzido)
                 if(twitchBtn){
                     setTimeout(()=> {
                         twitchBtn.classList.add('visible');
@@ -602,22 +594,20 @@
                 });
             }
 
-    if(confirmYes){
-        confirmYes.addEventListener('click', function(){
-            const file = downloadBtn.getAttribute('data-file') || 'imagem/quebracabeça.png';
-            const href = encodeURI(file);
-            const a = document.createElement('a');
-            a.href = href;
-            const parts = file.split('/');
-            a.download = parts[parts.length-1];
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            hideConfirm();
-        });
-}
-
-
+            if(confirmYes){
+                confirmYes.addEventListener('click', function(){
+                    const file = downloadBtn.getAttribute('data-file') || 'imagem/quebracabeça.png';
+                    const href = encodeURI(file);
+                    const a = document.createElement('a');
+                    a.href = href;
+                    const parts = file.split('/');
+                    a.download = parts[parts.length-1];
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    hideConfirm();
+                });
+            }
 
             if(confirmCancel){
                 confirmCancel.addEventListener('click', function(){ hideConfirm(); });
@@ -635,13 +625,20 @@
     </script>
 
     <script>
-        // Lista de canais, apelidos e nicks para skin
+        // ⚠️ IMPORTANTE: Você precisa substituir os UUIDs abaixo pelos UUIDs REAIS de cada jogador!
+        // Para obter o UUID correto:
+        // 1. Acesse: https://mcuuid.net/
+        // 2. Digite o nome do jogador Minecraft (ex: "BloodyBody")
+        // 3. Copie o UUID que aparece (formato: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+        // 4. Substitua nos valores "skin" abaixo
+
+        // Agora usando imagens locais da pasta "cabeças" para cada streamer
         const twitchChannels = [
-            { twitch: "bloodybodypan", apelido: "Bloody", skin: "BloodyBody" },
-            { twitch: "lemandsy", apelido: "Fencyl", skin: "LEMANDSY" },
-            { twitch: "lukymi_i", apelido: "Lukymi", skin: "aurorab3" },
-            { twitch: "oimaylon", apelido: "Maylon", skin: "MaylonMM" },
-            { twitch: "otrebor_avlis", apelido: "Beto", skin: "MrBoy_PvP" }
+            { twitch: "bloodybodypan", apelido: "Bloody", skin: "bloodybody.png" },
+            { twitch: "lemandsy", apelido: "Fencyl", skin: "lemandsy.png" },
+            { twitch: "lukymi_i", apelido: "Lukymi", skin: "aurorab3.png" },
+            { twitch: "oimaylon", apelido: "Maylon", skin: "maylonmm.png" },
+            { twitch: "otrebor_avlis", apelido: "Beto", skin: "mrboy_pvp.png" }
         ];
 
         (function(){
@@ -656,7 +653,7 @@
                     <a href="https://twitch.tv/${ch.twitch}" target="_blank" rel="noopener noreferrer"
                        style="display:flex;align-items:center;gap:10px;padding:8px 0;text-decoration:none;color:#fff;border-radius:7px;transition:background 0.18s;"
                        onmouseover="this.style.background='rgba(127,231,255,0.08)'" onmouseout="this.style.background='none'">
-                        <img src="https://minotar.net/helm/${ch.skin}/32.png" alt="${ch.apelido}" style="width:28px;height:28px;border-radius:6px;box-shadow:0 2px 8px #0003;">
+                        <img src="cabeças/${ch.skin}" alt="${ch.apelido}" style="width:28px;height:28px;border-radius:6px;box-shadow:0 2px 8px #0003;">
                         <span style="font-size:15px;letter-spacing:0.5px;">${ch.apelido}</span>
                     </a>
                 `).join('');
