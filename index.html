@@ -403,6 +403,9 @@
         </div>
     </div>
 
+    <!-- Música de fundo -->
+    <audio id="bgMusic" src="Musicas/AQuebra.mp3" loop></audio>
+
     <script src="stars.js"></script>
     <script>
         (function(){
@@ -624,6 +627,22 @@
                     if(e.key === 'Escape') hideConfirm();
                 });
             }
+
+            // Música de fundo: volume 50% e autoplay garantido após interação
+            (function(){
+                const bgMusic = document.getElementById('bgMusic');
+                if(bgMusic) {
+                    bgMusic.volume = 0.3;
+                    // Tenta tocar imediatamente (alguns navegadores bloqueiam)
+                    function tryPlay() {
+                        bgMusic.play().catch(() => {});
+                    }
+                    // Tenta tocar ao menos na primeira interação do usuário
+                    document.addEventListener('click', tryPlay, { once: true });
+                    document.addEventListener('keydown', tryPlay, { once: true });
+                }
+            })();
+
         })();
     </script>
 
