@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Elyria - Espaço</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        .card{
+            /* ...existing code... */
+        }
+        .card.hidden{
+            opacity: 0;
+            transform: translateY(-8px) scale(0.99);
+            pointer-events: none;
+            transition: opacity 320ms ease, transform 320ms ease;
+        }
+
+        .access-msg{
+            font-family: 'Press Start 2P', monospace;
+            font-size:11px;
+            color:#ff9a9a;
+            margin-top:12px;
+            opacity:0;
+            transform:translateY(-6px);
+            transition:opacity 220ms ease, transform 220ms ease;
+            pointer-events:none;
+            letter-spacing:0.5px;
+        }
+        .access-msg.show{
+            opacity:1;
+            transform:translateY(0);
+            pointer-events:auto;
+        }
+
+        #warpOverlay{
+            position:fixed;
+            inset:0;
+            pointer-events:none;
+            z-index:999;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            opacity:0;
+            transition:opacity 700ms ease;
+            background: radial-gradient(closest-side, rgba(60,90,150,0.18), rgba(5,8,20,0.85));
+            mix-blend-mode:screen;
+            overflow:hidden;
+        }
+        #warpOverlay.active{
+            opacity:1;
+            pointer-events:auto;
+        }
+
+        #warpOverlay .rings{
+            position:absolute;
+            inset:0;
+            pointer-events:none;
+        }
+        #warpOverlay .ring{
+            position:absolute;
+            left:50%; top:50%;
+            border-radius:50%;
+            transform-origin:center center;
+            opacity:0.12;
+            mix-blend-mode:screen;
+            filter: blur(8px);
+            border: 1px solid rgba(160,220,255,0.06);
+            backdrop-filter: blur(2px);
+        }
+        #warpOverlay .ring.r1{ width:40vmax; height:40vmax; margin:-20vmax 0 0 -20vmax; animation: ring-spin 6s linear infinite; }
+        #warpOverlay .ring.r2{ width:28vmax; height:28vmax; margin:-14vmax 0 0 -14vmax; animation: ring-spin 5.2s linear reverse infinite; opacity:0.14; filter: blur(10px) }
+        #warpOverlay .ring.r3{ width:18vmax; height:18vmax; margin:-9vmax 0 0 -9vmax; animation: ring-spin 4.2s linear infinite; opacity:0.18; filter: blur(14px) }
+
+        @keyframes ring-spin{
+            from{ transform: translateZ(0) rotate(0deg) scale(0.9) }
+            50%{ transform: translateZ(0) rotate(180deg) scale(1.02) }
+            to{ transform: translateZ(0) rotate(360deg) scale(0.9) }
+        }
+
+        #warpOverlay.engage .ring{ opacity:0.24; filter: blur(6px) }
+
+        #warpClock{
+            position:absolute;
+            left:50%; top:50%;
+            width:20vmax;
+            height:20vmax;
+            transform:translate(-50%,-50%) scale(1);
+            opacity:0.88;
+            pointer-events:none;
+            z-index:8;
+            filter: drop-shadow(0 6px 24px rgba(0,0,0,0.45)) saturate(1.1);
+            transition: transform 700ms ease, opacity 700ms ease;
+        }
+        #warpClock .face{
+            fill: rgba(10,18,28,0.6);
+            stroke: rgba(180,220,255,0.06);
+            stroke-width:2;
+        }
+        #warpClock .ringAccent{
+            fill:none;
+            stroke: rgba(180,220,255,0.06);
+            stroke-width:1.2;
+            filter: blur(6px);
+        }
+        #warpClock.spin{ animation: clock-spin 14s linear infinite; }
+        @keyframes clock-spin { from{ transform:translate(-50%,-50%) rotate(0deg) } to{ transform:translate(-50%,-50%) rotate(360deg) } }
+
+        #warpClock .hand { transform-origin: 50% 50%; transition: transform 180ms ease-out; }
+        #warpClock .hand.hour{ stroke: rgba(200,230,255,0.9); stroke-width:3; }
+        #warpClock .hand.minute{ stroke: rgba(200,230,255,0.85); stroke-width:2.2; }
+        #warpClock .hand.second{ stroke: #ff5b5b; stroke-width:2; transition: transform 140ms linear; }
+
+        #warpText{ 
+            position:relative; 
+            z-index:20;
+            color:#ffffff;
+            font-size:32px;
+            letter-spacing:1.5px;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+        }
+
+        /* Nova regra: logo no topo do overlay (área do quadrado vermelho) */
+        .overlay-logo{
+            position: absolute;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%) translateY(0);
+            z-index: 30;
+            pointer-events: none;
+            max-width: 220px;
+            width: 22vmax;
+            height: auto;
+            filter: drop-shadow(0 6px 18px rgba(0,0,0,0.6));
+            will-change: transform;
+            animation: logo-float 3.8s ease-in-out infinite;
+        }
+
+        /* animação up/down suave */
+        @keyframes logo-float{
+            0%   { transform: translateX(-50%) translateY(0); }
+            50%  { transform: translateX(-50%) translateY(-8px); }
+            100% { transform: translateX(-50%) translateY(0); }
+        }
+
+        /* respeitar preferência do usuário para reduzir movimento */
+        @media (prefers-reduced-motion: reduce){
+            .overlay-logo{
+                animation: none;
+            }
+        }
+
+        #warpCountdown{
+            font-family: 'Press Start 2P', monospace;
+            color: rgba(220,240,255,0.95);
+            font-size: 12px;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity 420ms ease, transform 420ms ease;
+            text-align:center;
+            z-index:20;
+        }
+        #warpCountdown.visible{
+            opacity:1;
+            transform: translateY(0);
+        }
+
+        .download-row{
+            margin-top:14px;
+            display:flex;
+            gap:10px;
+            align-items:center;
+            justify-content:center;
+            flex-direction:column;
+        }
+        .download-row .dl-btn{
+            padding:8px 12px;
+            background:linear-gradient(180deg, rgba(127,231,255,0.12), rgba(127,231,255,0.06));
+            color:var(--accent, #7fe7ff);
+            border:1px solid rgba(127,231,255,0.12);
+            border-radius:8px;
+            cursor:pointer;
+            font-family:inherit;
+            font-size:12px;
+            letter-spacing:1px;
+        }
+
+        #confirmModal{
+            position:fixed;
+            inset:0;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            z-index:1200;
+            pointer-events:none;
+            opacity:0;
+            transition:opacity 180ms ease;
+        }
+        #confirmModal.active{
+            pointer-events:auto;
+            opacity:1;
+        }
+        #confirmModal .box{
+            background: rgba(8,12,20,0.9);
+            border:1px solid rgba(127,231,255,0.08);
+            padding:14px 16px;
+            border-radius:10px;
+            width:min(360px, 90%);
+            text-align:center;
+            box-shadow:0 8px 40px rgba(0,0,0,0.6);
+            color:#fff;
+            font-family: 'Press Start 2P', monospace;
+            font-size:12px;
+        }
+        #confirmModal .actions{
+            margin-top:12px;
+            display:flex;
+            gap:10px;
+            justify-content:center;
+        }
+        #confirmModal .actions button{
+            padding:8px 10px;
+            border-radius:8px;
+            border:0;
+            cursor:pointer;
+            font-family:inherit;
+            font-size:12px;
+        }
+        #confirmModal .actions .btn-cancel{
+            background:rgba(255,90,90,0.08);
+            color:#ff9a9a;
+            border:1px solid rgba(255,90,90,0.06);
+        }
+        #confirmModal .actions .btn-confirm{
+            background:linear-gradient(180deg, rgba(127,231,255,0.12), rgba(127,231,255,0.06));
+            color:var(--accent, #7fe7ff);
+            border:1px solid rgba(127,231,255,0.12);
+        }
+
+        /* Modal Twitch único */
+        .twitch-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0; top: 0; right: 0; bottom: 0;
+            align-items: center;
+            justify-content: center;
+            background: rgba(20,24,40,0.18);
+            backdrop-filter: blur(8px);
+        }
+        .twitch-modal.active {
+            display: flex;
+        }
+        .twitch-modal-box {
+            background: rgba(24,28,48,0.55);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(30,8,80,0.22);
+            padding: 32px 28px 24px 28px;
+            min-width: 260px;
+            min-height: 120px;
+            max-width: 92vw;
+            max-height: 80vh;
+            color: #fff;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 13px;
+            text-align: center;
+            position: relative;
+            border: 1.5px solid rgba(127,231,255,0.10);
+            backdrop-filter: blur(16px);
+        }
+        .twitch-modal-close {
+            position: absolute;
+            top: 12px; right: 16px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.18s;
+        }
+        .twitch-modal-close:hover {
+            opacity: 1;
+        }
+        @media (max-width: 520px){
+            .twitch-modal-box {
+                padding: 18px 6vw 16px 6vw;
+                font-size: 11px;
+            }
+        }
+
+        /* Botão flutuante Twitch - OCULTO INICIALMENTE */
+        .twitch-floating {
+            position:fixed;
+            right:20px;
+            bottom:20px;
+            z-index:1500;
+            display:none;
+            align-items:center;
+            gap:10px;
+            padding:10px 18px;
+            background:linear-gradient(180deg,#7b4bff,#5a2bd6);
+            color:#fff;
+            text-decoration:none;
+            border-radius:999px;
+            box-shadow:0 8px 24px rgba(30,8,80,0.45);
+            font-family:'Press Start 2P',monospace;
+            font-size:13px;
+            letter-spacing:0.6px;
+            opacity:0;
+            transition: opacity 250ms ease;
+        }
+        .twitch-floating.visible {
+            display:inline-flex;
+            opacity:1;
+        }
+        .twitch-icon {
+            display:inline-block;
+            vertical-align:middle;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="stars"></canvas>
+    <div class="nebula"></div>
+
+    <div id="warpOverlay" aria-hidden="true">
+        <img src="logo/ELYRIA.png" alt="ELYRIA" class="overlay-logo" />
+
+        <div class="rings" aria-hidden="true">
+            <div class="ring r1"></div>
+            <div class="ring r2"></div>
+            <div class="ring r3"></div>
+        </div>
+
+        <svg id="warpClock" viewBox="0 0 200 200" aria-hidden="true">
+            <defs>
+                <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3" result="b"/>
+                    <feBlend in="SourceGraphic" in2="b"/>
+                </filter>
+            </defs>
+            <g filter="url(#soft)">
+                <circle class="face" cx="100" cy="100" r="92"/>
+                <circle class="ringAccent" cx="100" cy="100" r="78"/>
+                <line id="hourHand" class="hand hour" x1="100" y1="100" x2="100" y2="64" stroke-linecap="round"/>
+                <line id="minuteHand" class="hand minute" x1="100" y1="100" x2="100" y2="48" stroke-linecap="round"/>
+                <line id="secondHand" class="hand second" x1="100" y1="106" x2="100" y2="40" />
+                <circle cx="100" cy="100" r="3" fill="rgba(255,255,255,0.9)"/>
+            </g>
+        </svg>
+
+        <div id="warpText" role="status" aria-live="polite">4/10/25</div>
+        <div id="warpCountdown" aria-live="polite" role="status">--:--:--:--</div>
+    </div>
+
+    <main class="center">
+    <div class="card" id="accessCard">
+        <h1 class="title">ACESSO</h1>
+        <form id="accessForm" autocomplete="off">
+            <label class="visually-hidden" for="pwd">Senha</label>
+            <input id="pwd" type="password" placeholder="INSIRA A SENHA" />
+            <button type="submit">OK</button>
+        </form>
+        <div id="accessMsg" class="access-msg" aria-live="polite" role="status"></div>
+
+        <div class="preview-image" style="margin: 18px 0 0 0; display: flex; justify-content: center;">
+            <img src="imagem/quebracabeça.png" alt="Quebra-cabeça" style="max-width: 220px; border-radius: 8px; border: 1px solid #7fe7ff; box-shadow: 0 4px 16px rgba(0,0,0,0.3);" />
+        </div>
+
+        <div class="download-row" style="margin-top:16px;">
+            <button id="downloadBtn" class="dl-btn" data-file="imagem/quebracabeça.png" type="button">Baixar</button>
+        </div>
+    </div>
+</main>
+
+    <div id="confirmModal" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="box" role="document">
+            <div class="msg">Você tem certeza que quer baixar este arquivo?</div>
+            <div class="actions">
+                <button class="btn-cancel" id="confirmCancel" type="button">Cancelar</button>
+                <button class="btn-confirm" id="confirmYes" type="button">Sim, baixar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botão flutuante Twitch -->
+    <a class="twitch-floating" id="twitchBtn" href="#" aria-label="Abrir canais Twitch">
+        <svg class="twitch-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M4 3v13.5h3V21l3.5-3.5H14L20 13V3H4zm14 9.5l-3 2.25H9.5L7 17.75V5h11v7.5zM10.25 8.75h1.5v4.25h-1.5V8.75zm3.75 0h1.5v4.25h-1.5V8.75z"/>
+        </svg>
+        <span class="twitch-label">Twitch</span>
+    </a>
+
+    <!-- Modal Twitch com lista de canais -->
+    <div class="twitch-modal" id="twitchModal" tabindex="-1" aria-modal="true" aria-hidden="true" role="dialog">
+        <div class="twitch-modal-box" role="document" style="min-width:320px;">
+            <button class="twitch-modal-close" id="twitchModalClose" aria-label="Fechar">&times;</button>
+            <div style="margin-bottom:18px;">
+                <span style="font-size:15px;color:#a7e3ff;">Streamers Oficiais de Elyria</span>
+            </div>
+            <div id="twitchModalChannels" style="display:flex;flex-direction:column;gap:12px;">
+                <!-- Preenchido via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="stars.js"></script>
+    <script>
+        (function(){
+            const input = document.getElementById('pwd');
+            const card = document.getElementById('accessCard');
+            const form = document.getElementById('accessForm');
+            const msg = document.getElementById('accessMsg');
+            const overlay = document.getElementById('warpOverlay');
+            const warpText = document.getElementById('warpText');
+            const twitchBtn = document.getElementById('twitchBtn');
+            if(!input || !card || !form || !msg || !overlay || !warpText) return;
+
+            function showDenied(){
+                msg.textContent = 'Acesso Negado';
+                msg.classList.add('show');
+            }
+            function hideMsg(){
+                msg.classList.remove('show');
+            }
+
+            const audioEl = new Audio('efeitos/relogio.mp3');
+            audioEl.loop = true;
+            audioEl.preload = 'auto';
+
+            let audioCtx = null;
+            let tickInterval = null;
+            let rafId = null;
+            let startAudioOffset = 0;
+            let secondAngle = 0;
+            const secondEl = document.getElementById('secondHand');
+            const clockEl = document.getElementById('warpClock');
+
+            function makeTickSoundOsc(){
+                try{
+                    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    const t = audioCtx.currentTime;
+                    const o = audioCtx.createOscillator();
+                    o.type = 'square';
+                    o.frequency.setValueAtTime(1400 + Math.random()*400, t);
+                    const g = audioCtx.createGain();
+                    g.gain.setValueAtTime(0.0001, t);
+                    g.gain.exponentialRampToValueAtTime(0.5, t + 0.006);
+                    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+                    o.connect(g); g.connect(audioCtx.destination);
+                    o.start(t);
+                    o.stop(t + 0.1);
+                }catch(err){}
+            }
+
+            function startOscillatorFallback(rateMs = 900){
+                try{
+                    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    if(audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+                }catch(e){}
+                makeTickSoundOsc();
+                tickInterval = setInterval(makeTickSoundOsc, rateMs);
+
+                const start = performance.now();
+                function fallbackFrame(){
+                    const elapsed = (performance.now() - start) / 1000;
+                    secondAngle = (elapsed * 30) % 360;
+                    if(secondEl) secondEl.style.transform = `rotate(${secondAngle}deg)`;
+                    rafId = requestAnimationFrame(fallbackFrame);
+                }
+                if(rafId) cancelAnimationFrame(rafId);
+                rafId = requestAnimationFrame(fallbackFrame);
+            }
+            function stopOscillatorFallback(){
+                if(tickInterval){ clearInterval(tickInterval); tickInterval = null; }
+                if(rafId){ cancelAnimationFrame(rafId); rafId = null; }
+            }
+
+            function syncClockFrame(){
+                if(!secondEl) return;
+                const t = (!audioEl.paused && audioEl.currentTime !== undefined) ? (audioEl.currentTime - startAudioOffset) : (performance.now()/1000);
+                secondAngle = (t * 30) % 360;
+                secondEl.style.transform = `rotate(${secondAngle}deg)`;
+                rafId = requestAnimationFrame(syncClockFrame);
+            }
+
+            function startAudioAndSync(){
+                audioEl.currentTime = 0;
+                const promise = audioEl.play();
+                if(promise && typeof promise.catch === 'function'){
+                    promise.catch(()=> {
+                        startOscillatorFallback(900);
+                    });
+                }
+                startAudioOffset = audioEl.currentTime || 0;
+                if(rafId) cancelAnimationFrame(rafId);
+                rafId = requestAnimationFrame(syncClockFrame);
+            }
+
+            function stopAudioAndSync(){
+                try{
+                    if(!audioEl.paused) audioEl.pause();
+                    audioEl.currentTime = 0;
+                }catch(e){}
+                if(rafId){ cancelAnimationFrame(rafId); rafId = null; }
+                stopOscillatorFallback();
+            }
+
+            function startWarp(){
+                card.classList.add('hidden');
+                document.body.classList.add('warp');
+                overlay.classList.add('active');
+                overlay.setAttribute('aria-hidden', 'false');
+                setTimeout(()=> overlay.classList.add('engage'), 220);
+                setTimeout(()=> warpText.classList.add('visible'), 260);
+                if(clockEl) clockEl.classList.add('spin');
+                startAudioAndSync();
+                setTimeout(()=> {
+                    overlay.classList.remove('engage');
+                }, 5200);
+                startCountdown();
+                
+                // EXIBE O BOTÃO TWITCH APÓS ACESSO CORRETO (delay reduzido)
+                if(twitchBtn){
+                    setTimeout(()=> {
+                        twitchBtn.classList.add('visible');
+                    }, 100);
+                }
+            }
+
+            let countdownInterval = null;
+            const countdownEl = document.getElementById('warpCountdown');
+            const targetDate = new Date(2025, 9, 4, 0, 0, 0);
+
+            function formatTwo(n){ return String(Math.max(0, Math.floor(n))).padStart(2,'0'); }
+
+            function updateCountdownOnce(){
+                const now = new Date();
+                let diff = Math.max(0, targetDate - now);
+                const totalSeconds = Math.floor(diff / 1000);
+                const days = Math.floor(totalSeconds / 86400);
+                const hours = Math.floor((totalSeconds % 86400) / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+                const daysStr = String(days);
+                const out = `${daysStr}d ${formatTwo(hours)}:${formatTwo(minutes)}:${formatTwo(seconds)}`;
+                if(countdownEl) countdownEl.textContent = out;
+                if(diff === 0 && countdownInterval){
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                }
+            }
+
+            function startCountdown(){
+                if(countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+                updateCountdownOnce();
+                countdownInterval = setInterval(updateCountdownOnce, 1000);
+                if(countdownEl) countdownEl.classList.add('visible');
+            }
+            function stopCountdown(){
+                if(countdownInterval){ clearInterval(countdownInterval); countdownInterval = null; }
+                if(countdownEl) countdownEl.classList.remove('visible');
+            }
+
+            form.addEventListener('submit', function(e){
+                e.preventDefault();
+                const v = (input.value || '').trim().toLowerCase();
+                if(v === '19131896917215'){
+                    hideMsg();
+                    startWarp();
+                } else {
+                    showDenied();
+                }
+            });
+
+            const downloadBtn = document.getElementById('downloadBtn');
+            const confirmModal = document.getElementById('confirmModal');
+            const confirmYes = document.getElementById('confirmYes');
+            const confirmCancel = document.getElementById('confirmCancel');
+
+            function showConfirm(){
+                if(!confirmModal) return;
+                confirmModal.classList.add('active');
+                confirmModal.setAttribute('aria-hidden','false');
+            }
+            function hideConfirm(){
+                if(!confirmModal) return;
+                confirmModal.classList.remove('active');
+                confirmModal.setAttribute('aria-hidden','true');
+            }
+
+            if(downloadBtn){
+                downloadBtn.addEventListener('click', function(e){
+                    e.preventDefault();
+                    showConfirm();
+                });
+            }
+
+    if(confirmYes){
+        confirmYes.addEventListener('click', function(){
+            const file = downloadBtn.getAttribute('data-file') || 'imagem/quebracabeça.png';
+            const href = encodeURI(file);
+            const a = document.createElement('a');
+            a.href = href;
+            const parts = file.split('/');
+            a.download = parts[parts.length-1];
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            hideConfirm();
+        });
+}
+
+
+
+            if(confirmCancel){
+                confirmCancel.addEventListener('click', function(){ hideConfirm(); });
+            }
+
+            if(confirmModal){
+                confirmModal.addEventListener('click', function(e){
+                    if(e.target === confirmModal) hideConfirm();
+                });
+                document.addEventListener('keydown', function(e){
+                    if(e.key === 'Escape') hideConfirm();
+                });
+            }
+        })();
+    </script>
+
+    <script>
+        // Lista de canais, apelidos e nicks para skin
+        const twitchChannels = [
+            { twitch: "bloodybodypan", apelido: "Bloody", skin: "BloodyBody" },
+            { twitch: "lemandsy", apelido: "Fencyl", skin: "LEMANDSY" },
+            { twitch: "lukymi_i", apelido: "Lukymi", skin: "aurorab3" },
+            { twitch: "oimaylon", apelido: "Maylon", skin: "MaylonMM" },
+            { twitch: "otrebor_avlis", apelido: "Beto", skin: "MrBoy_PvP" }
+        ];
+
+        (function(){
+            const twitchBtn = document.getElementById('twitchBtn');
+            const twitchModal = document.getElementById('twitchModal');
+            const twitchModalClose = document.getElementById('twitchModalClose');
+            const twitchModalChannels = document.getElementById('twitchModalChannels');
+            if(!twitchBtn || !twitchModal || !twitchModalChannels) return;
+
+            function renderChannels() {
+                twitchModalChannels.innerHTML = twitchChannels.map(ch => `
+                    <a href="https://twitch.tv/${ch.twitch}" target="_blank" rel="noopener noreferrer"
+                       style="display:flex;align-items:center;gap:10px;padding:8px 0;text-decoration:none;color:#fff;border-radius:7px;transition:background 0.18s;"
+                       onmouseover="this.style.background='rgba(127,231,255,0.08)'" onmouseout="this.style.background='none'">
+                        <img src="https://minotar.net/helm/${ch.skin}/32.png" alt="${ch.apelido}" style="width:28px;height:28px;border-radius:6px;box-shadow:0 2px 8px #0003;">
+                        <span style="font-size:15px;letter-spacing:0.5px;">${ch.apelido}</span>
+                    </a>
+                `).join('');
+            }
+
+            function openTwitchModal(e){
+                if(e) e.preventDefault();
+                renderChannels();
+                twitchModal.classList.add('active');
+                twitchModal.setAttribute('aria-hidden','false');
+                setTimeout(()=>{twitchModal.focus();}, 10);
+            }
+            function closeTwitchModal(){
+                twitchModal.classList.remove('active');
+                twitchModal.setAttribute('aria-hidden','true');
+            }
+            twitchBtn.addEventListener('click', openTwitchModal);
+            if(twitchModalClose){
+                twitchModalClose.addEventListener('click', closeTwitchModal);
+            }
+            twitchModal.addEventListener('click', function(e){
+                if(e.target === twitchModal) closeTwitchModal();
+            });
+            document.addEventListener('keydown', function(e){
+                if(twitchModal.classList.contains('active') && (e.key === 'Escape' || e.key === 'Esc')){
+                    closeTwitchModal();
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
