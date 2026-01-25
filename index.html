@@ -464,7 +464,7 @@
                     bgMusic.volume = 0.2;
                     function tryPlay() {
                         bgMusic.play().catch(() => {});
-                    }E
+                    }
                     document.addEventListener('click', tryPlay, { once: true });
                     document.addEventListener('keydown', tryPlay, { once: true });
                     window.addEventListener('load', tryPlay, { once: true });
@@ -527,3 +527,4 @@
     </script>
 </body>
 </html>
+
