@@ -3,39 +3,137 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Elyria - Espaço</title>
+    <title>Elyria - Pato Dormindo</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" type="image/png" href="logo/E.png">
+    <link rel="icon" type="image/png" href="logo/elyria2.png">
 
     <style>
-        .card{
-            /* ...existing code... */
-        }
-        .card.hidden{
-            opacity: 0;
-            transform: translateY(-8px) scale(0.99);
-            pointer-events: none;
-            transition: opacity 320ms ease, transform 320ms ease;
+        /* ===== BACKGROUND VIDEO ===== */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            min-height: 100vh;
         }
 
-        .access-msg{
+        #bgVideo {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            object-fit: cover;
+            filter: blur(3px);
+        }
+
+        /* ===== COUNTDOWN STYLES ===== */
+        #countdown {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            text-align: center;
             font-family: 'Press Start 2P', monospace;
-            font-size:11px;
-            color:#ff9a9a;
-            margin-top:12px;
-            opacity:0;
-            transform:translateY(-6px);
-            transition:opacity 220ms ease, transform 220ms ease;
-            pointer-events:none;
-            letter-spacing:0.5px;
+            color: #fff;
+            pointer-events: none;
         }
-        .access-msg.show{
-            opacity:1;
-            transform:translateY(0);
-            pointer-events:auto;
+        #countdown .label {
+            font-size: 14px;
+            color: #a7e3ff;
+            margin-bottom: 16px;
+            text-shadow: 0 0 20px rgba(127,231,255,0.5);
+            letter-spacing: 2px;
+        }
+        #countdown .time {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+        #countdown .time-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #countdown .time-block .value {
+            font-size: 48px;
+            color: #7fe7ff;
+            text-shadow: 0 0 30px rgba(127,231,255,0.7), 0 0 60px rgba(127,231,255,0.4);
+            background: rgba(8,12,20,0.6);
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(127,231,255,0.15);
+            min-width: 90px;
+        }
+        #countdown .time-block .unit {
+            font-size: 10px;
+            color: #7fe7ff;
+            margin-top: 8px;
+            opacity: 0.8;
+            letter-spacing: 1px;
+        }
+        #countdown .separator {
+            font-size: 40px;
+            color: #7fe7ff;
+            text-shadow: 0 0 20px rgba(127,231,255,0.6);
+            animation: blink 1s ease-in-out infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        #countdown.finished .time-block .value {
+            color: #4eff9f;
+            text-shadow: 0 0 30px rgba(78,255,159,0.7);
+        }
+        @media (max-width: 600px) {
+            #countdown .time-block .value {
+                font-size: 28px;
+                padding: 12px 16px;
+                min-width: 60px;
+            }
+            #countdown .separator {
+                font-size: 24px;
+            }
+            #countdown .time {
+                gap: 10px;
+            }
         }
 
+        /* ===== LOGO (FORA DO OVERLAY) ===== */
+        .main-logo {
+            position: fixed;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1002;
+            pointer-events: none;
+            max-width: 380px;
+            width: 38vmax;
+            height: auto;
+            filter: drop-shadow(0 6px 18px rgba(0,0,0,0.6));
+            animation: logo-float 3.8s ease-in-out infinite;
+        }
+
+        @keyframes logo-float{
+            0%   { transform: translateX(-50%) translateY(0); }
+            50%  { transform: translateX(-50%) translateY(-8px); }
+            100% { transform: translateX(-50%) translateY(0); }
+        }
+
+        @media (prefers-reduced-motion: reduce){
+            .main-logo{
+                animation: none;
+            }
+        }
+
+        /* ===== OVERLAY (SEM A LOGO) ===== */
         #warpOverlay{
             position:fixed;
             inset:0;
@@ -52,7 +150,7 @@
         }
         #warpOverlay.active{
             opacity:1;
-            pointer-events:auto;
+            pointer-events:none;
         }
 
         #warpOverlay .rings{
@@ -82,110 +180,6 @@
         }
 
         #warpOverlay.engage .ring{ opacity:0.24; filter: blur(6px) }
-
-        #warpClock{
-            position:absolute;
-            left:50%; top:50%;
-            width:20vmax;
-            height:20vmax;
-            transform:translate(-50%,-50%) scale(1);
-            opacity:0.88;
-            pointer-events:none;
-            z-index:8;
-            filter: drop-shadow(0 6px 24px rgba(0,0,0,0.45)) saturate(1.1);
-            transition: transform 700ms ease, opacity 700ms ease;
-        }
-        #warpClock .face{
-            fill: rgba(10,18,28,0.6);
-            stroke: rgba(180,220,255,0.06);
-            stroke-width:2;
-        }
-        #warpClock .ringAccent{
-            fill:none;
-            stroke: rgba(180,220,255,0.06);
-            stroke-width:1.2;
-            filter: blur(6px);
-        }
-        #warpClock.spin{ animation: clock-spin 14s linear infinite; }
-        @keyframes clock-spin { from{ transform:translate(-50%,-50%) rotate(0deg) } to{ transform:translate(-50%,-50%) rotate(360deg) } }
-
-        #warpClock .hand { transform-origin: 50% 50%; transition: transform 180ms ease-out; }
-        #warpClock .hand.hour{ stroke: rgba(200,230,255,0.9); stroke-width:3; }
-        #warpClock .hand.minute{ stroke: rgba(200,230,255,0.85); stroke-width:2.2; }
-        #warpClock .hand.second{ stroke: #ff5b5b; stroke-width:2; transition: transform 140ms linear; }
-
-        #warpText{ 
-            position:relative; 
-            z-index:20;
-            color:#ffffff;
-            font-size:32px;
-            letter-spacing:1.5px;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.6);
-        }
-
-        .overlay-logo{
-            position: absolute;
-            top: 18px;
-            left: 50%;
-            transform: translateX(-50%) translateY(0);
-            z-index: 30;
-            pointer-events: none;
-            max-width: 220px;
-            width: 22vmax;
-            height: auto;
-            filter: drop-shadow(0 6px 18px rgba(0,0,0,0.6));
-            will-change: transform;
-            animation: logo-float 3.8s ease-in-out infinite;
-        }
-
-        @keyframes logo-float{
-            0%   { transform: translateX(-50%) translateY(0); }
-            50%  { transform: translateX(-50%) translateY(-8px); }
-            100% { transform: translateX(-50%) translateY(0); }
-        }
-
-        @media (prefers-reduced-motion: reduce){
-            .overlay-logo{
-                animation: none;
-            }
-        }
-
-        #warpCountdown{
-            font-family: 'Press Start 2P', monospace;
-            color: rgba(220,240,255,0.95);
-            font-size: 12px;
-            letter-spacing: 1px;
-            margin-top: 10px;
-            opacity: 0;
-            transform: translateY(6px);
-            transition: opacity 420ms ease, transform 420ms ease;
-            text-align:center;
-            z-index:20;
-        }
-        #warpCountdown.visible{
-            opacity:1;
-            transform: translateY(0);
-        }
-
-        .download-row{
-            margin-top:14px;
-            display:flex;
-            gap:10px;
-            align-items:center;
-            justify-content:center;
-            flex-direction:column;
-        }
-        .download-row .dl-btn{
-            padding:8px 12px;
-            background:linear-gradient(180deg, rgba(127,231,255,0.12), rgba(127,231,255,0.06));
-            color:var(--accent, #7fe7ff);
-            border:1px solid rgba(127,231,255,0.12);
-            border-radius:8px;
-            cursor:pointer;
-            font-family:inherit;
-            font-size:12px;
-            letter-spacing:1px;
-        }
 
         #confirmModal{
             position:fixed;
@@ -321,66 +315,42 @@
     </style>
 </head>
 <body>
-    <canvas id="stars"></canvas>
-    <div class="nebula"></div>
+    <!-- VÍDEO DE FUNDO -->
+    <video id="bgVideo" autoplay loop muted playsinline>
+        <source src="fundo/fundolegal.mp4" type="video/mp4">
+    </video>
+
+    <!-- LOGO (FORA DO OVERLAY) -->
+    <img src="logo/elyria2.png" alt="Elyria" class="main-logo" />
+
+    <!-- COUNTDOWN -->
+    <div id="countdown">
+        <div class="label">Nos vemos mais tarde!</div>
+        <div class="time">
+            <div class="time-block">
+                <span class="value" id="hours">00</span>
+                <span class="unit">HORAS</span>
+            </div>
+            <span class="separator">:</span>
+            <div class="time-block">
+                <span class="value" id="minutes">00</span>
+                <span class="unit">MINUTOS</span>
+            </div>
+            <span class="separator">:</span>
+            <div class="time-block">
+                <span class="value" id="seconds">00</span>
+                <span class="unit">SEGUNDOS</span>
+            </div>
+        </div>
+    </div>
 
     <div id="warpOverlay" aria-hidden="true">
-        <img src="logo/ELYRIA.png" alt="ELYRIA" class="overlay-logo" />
+        <!-- Logo removida daqui -->
 
         <div class="rings" aria-hidden="true">
             <div class="ring r1"></div>
             <div class="ring r2"></div>
             <div class="ring r3"></div>
-        </div>
-
-        <svg id="warpClock" viewBox="0 0 200 200" aria-hidden="true">
-            <defs>
-                <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
-                    <feGaussianBlur stdDeviation="3" result="b"/>
-                    <feBlend in="SourceGraphic" in2="b"/>
-                </filter>
-            </defs>
-            <g filter="url(#soft)">
-                <circle class="face" cx="100" cy="100" r="92"/>
-                <circle class="ringAccent" cx="100" cy="100" r="78"/>
-                <line id="hourHand" class="hand hour" x1="100" y1="100" x2="100" y2="64" stroke-linecap="round"/>
-                <line id="minuteHand" class="hand minute" x1="100" y1="100" x2="100" y2="48" stroke-linecap="round"/>
-                <line id="secondHand" class="hand second" x1="100" y1="106" x2="100" y2="40" />
-                <circle cx="100" cy="100" r="3" fill="rgba(255,255,255,0.9)"/>
-            </g>
-        </svg>
-
-        <div id="warpText" role="status" aria-live="polite">4/10/25</div>
-        <div id="warpCountdown" aria-live="polite" role="status">--:--:--:--</div>
-    </div>
-
-    <main class="center">
-    <div class="card" id="accessCard">
-        <h1 class="title">ACESSO</h1>
-        <form id="accessForm" autocomplete="off">
-            <label class="visually-hidden" for="pwd">Senha</label>
-            <input id="pwd" type="password" placeholder="INSIRA A SENHA" />
-            <button type="submit">OK</button>
-        </form>
-        <div id="accessMsg" class="access-msg" aria-live="polite" role="status"></div>
-
-        <div class="preview-image" style="margin: 18px 0 0 0; display: flex; justify-content: center;">
-            <img src="imagem/quebracabeça.png" alt="Quebra-cabeça" style="max-width: 220px; border-radius: 8px; border: 1px solid #7fe7ff; box-shadow: 0 4px 16px rgba(0,0,0,0.3);" />
-        </div>
-
-        <div class="download-row" style="margin-top:16px;">
-            <button id="downloadBtn" class="dl-btn" data-file="imagem/quebracabeça.png" type="button">Baixar</button>
-        </div>
-    </div>
-</main>
-
-    <div id="confirmModal" role="dialog" aria-modal="true" aria-hidden="true">
-        <div class="box" role="document">
-            <div class="msg">Você tem certeza que quer baixar este arquivo?</div>
-            <div class="actions">
-                <button class="btn-cancel" id="confirmCancel" type="button">Cancelar</button>
-                <button class="btn-confirm" id="confirmYes" type="button">Sim, baixar</button>
-            </div>
         </div>
     </div>
 
@@ -398,130 +368,85 @@
                 <span style="font-size:15px;color:#a7e3ff;">Streamers Oficiais de Elyria</span>
             </div>
             <div id="twitchModalChannels" style="display:flex;flex-direction:column;gap:12px;">
-                <!-- Preenchido via JS -->
             </div>
         </div>
     </div>
 
-    <!-- Música de fundo -->
-    <audio id="bgMusic" src="Musicas/AQuebra.mp3" loop></audio>
+    <div id="confirmModal" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="box" role="document">
+            <div class="msg">Você tem certeza que quer baixar este arquivo?</div>
+            <div class="actions">
+                <button class="btn-cancel" id="confirmCancel" type="button">Cancelar</button>
+                <button class="btn-confirm" id="confirmYes" type="button">Sim, baixar</button>
+            </div>
+        </div>
+    </div>
 
-    <script src="stars.js"></script>
+    <audio id="bgMusic" src="Musicas/IWillCatchUp!.mp3" loop></audio>
+
+    <!-- COUNTDOWN SCRIPT -->
     <script>
         (function(){
-            const input = document.getElementById('pwd');
-            const card = document.getElementById('accessCard');
-            const form = document.getElementById('accessForm');
-            const msg = document.getElementById('accessMsg');
+            const hoursEl = document.getElementById('hours');
+            const minutesEl = document.getElementById('minutes');
+            const secondsEl = document.getElementById('seconds');
+            const countdownEl = document.getElementById('countdown');
+
+            function getTarget14h() {
+                const now = new Date();
+                const target = new Date(now);
+                target.setHours(14, 0, 0, 0);
+                if (now >= target) {
+                    target.setDate(target.getDate() + 1);
+                }
+                return target;
+            }
+
+            let targetDate = getTarget14h();
+
+            function updateCountdown() {
+                const now = new Date();
+                const diff = targetDate - now;
+
+                if (diff <= 0) {
+                    hoursEl.textContent = '00';
+                    minutesEl.textContent = '00';
+                    secondsEl.textContent = '00';
+                    countdownEl.classList.add('finished');
+                    document.querySelector('#countdown .label').textContent = 'SERVIDOR ABERTO!';
+                    return;
+                }
+
+                const totalSeconds = Math.floor(diff / 1000);
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+
+                hoursEl.textContent = String(hours).padStart(2, '0');
+                minutesEl.textContent = String(minutes).padStart(2, '0');
+                secondsEl.textContent = String(seconds).padStart(2, '0');
+            }
+
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        })();
+    </script>
+
+    <script>
+        (function(){
             const overlay = document.getElementById('warpOverlay');
-            const warpText = document.getElementById('warpText');
             const twitchBtn = document.getElementById('twitchBtn');
-            if(!input || !card || !form || !msg || !overlay || !warpText) return;
-
-            function showDenied(){
-                msg.textContent = 'Acesso Negado';
-                msg.classList.add('show');
-            }
-            function hideMsg(){
-                msg.classList.remove('show');
-            }
-
-            const audioEl = new Audio('efeitos/relogio.mp3');
-            audioEl.loop = true;
-            audioEl.preload = 'auto';
-
-            let audioCtx = null;
-            let tickInterval = null;
-            let rafId = null;
-            let startAudioOffset = 0;
-            let secondAngle = 0;
-            const secondEl = document.getElementById('secondHand');
-            const clockEl = document.getElementById('warpClock');
-
-            function makeTickSoundOsc(){
-                try{
-                    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    const t = audioCtx.currentTime;
-                    const o = audioCtx.createOscillator();
-                    o.type = 'square';
-                    o.frequency.setValueAtTime(1400 + Math.random()*400, t);
-                    const g = audioCtx.createGain();
-                    g.gain.setValueAtTime(0.0001, t);
-                    g.gain.exponentialRampToValueAtTime(0.5, t + 0.006);
-                    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
-                    o.connect(g); g.connect(audioCtx.destination);
-                    o.start(t);
-                    o.stop(t + 0.1);
-                }catch(err){}
-            }
-
-            function startOscillatorFallback(rateMs = 900){
-                try{
-                    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    if(audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
-                }catch(e){}
-                makeTickSoundOsc();
-                tickInterval = setInterval(makeTickSoundOsc, rateMs);
-
-                const start = performance.now();
-                function fallbackFrame(){
-                    const elapsed = (performance.now() - start) / 1000;
-                    secondAngle = (elapsed * 30) % 360;
-                    if(secondEl) secondEl.style.transform = `rotate(${secondAngle}deg)`;
-                    rafId = requestAnimationFrame(fallbackFrame);
-                }
-                if(rafId) cancelAnimationFrame(rafId);
-                rafId = requestAnimationFrame(fallbackFrame);
-            }
-            function stopOscillatorFallback(){
-                if(tickInterval){ clearInterval(tickInterval); tickInterval = null; }
-                if(rafId){ cancelAnimationFrame(rafId); rafId = null; }
-            }
-
-            function syncClockFrame(){
-                if(!secondEl) return;
-                const t = (!audioEl.paused && audioEl.currentTime !== undefined) ? (audioEl.currentTime - startAudioOffset) : (performance.now()/1000);
-                secondAngle = (t * 30) % 360;
-                secondEl.style.transform = `rotate(${secondAngle}deg)`;
-                rafId = requestAnimationFrame(syncClockFrame);
-            }
-
-            function startAudioAndSync(){
-                audioEl.currentTime = 0;
-                const promise = audioEl.play();
-                if(promise && typeof promise.catch === 'function'){
-                    promise.catch(()=> {
-                        startOscillatorFallback(900);
-                    });
-                }
-                startAudioOffset = audioEl.currentTime || 0;
-                if(rafId) cancelAnimationFrame(rafId);
-                rafId = requestAnimationFrame(syncClockFrame);
-            }
-
-            function stopAudioAndSync(){
-                try{
-                    if(!audioEl.paused) audioEl.pause();
-                    audioEl.currentTime = 0;
-                }catch(e){}
-                if(rafId){ cancelAnimationFrame(rafId); rafId = null; }
-                stopOscillatorFallback();
-            }
+            if(!overlay) return;
 
             function startWarp(){
-                card.classList.add('hidden');
                 document.body.classList.add('warp');
                 overlay.classList.add('active');
                 overlay.setAttribute('aria-hidden', 'false');
                 setTimeout(()=> overlay.classList.add('engage'), 220);
-                setTimeout(()=> warpText.classList.add('visible'), 260);
-                if(clockEl) clockEl.classList.add('spin');
-                startAudioAndSync();
                 setTimeout(()=> {
                     overlay.classList.remove('engage');
                 }, 5200);
-                startCountdown();
-                
+
                 if(twitchBtn){
                     setTimeout(()=> {
                         twitchBtn.classList.add('visible');
@@ -529,140 +454,32 @@
                 }
             }
 
-            let countdownInterval = null;
-            const countdownEl = document.getElementById('warpCountdown');
-            
-            // Data alvo: 4 de outubro de 2025, 18:00 horário de Brasília (BRT, UTC-3)
-            // Criamos a data em UTC e depois ajustamos para BRT manualmente
-            const targetDate = new Date('2025-10-04T19:00:00-03:00');
-
-            function formatTwo(n){ return String(Math.max(0, Math.floor(n))).padStart(2,'0'); }
-
-            function updateCountdownOnce(){
-                const now = new Date();
-                let diff = Math.max(0, targetDate - now);
-                const totalSeconds = Math.floor(diff / 1000);
-                const days = Math.floor(totalSeconds / 86400);
-                const hours = Math.floor((totalSeconds % 86400) / 3600);
-                const minutes = Math.floor((totalSeconds % 3600) / 60);
-                const seconds = totalSeconds % 60;
-                const daysStr = String(days);
-                const out = `${daysStr}d ${formatTwo(hours)}:${formatTwo(minutes)}:${formatTwo(seconds)}`;
-                if(countdownEl) countdownEl.textContent = out;
-                if(diff === 0 && countdownInterval){
-                    clearInterval(countdownInterval);
-                    countdownInterval = null;
-                }
-            }
-
-            function startCountdown(){
-                if(countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
-                updateCountdownOnce();
-                countdownInterval = setInterval(updateCountdownOnce, 1000);
-                if(countdownEl) countdownEl.classList.add('visible');
-            }
-            function stopCountdown(){
-                if(countdownInterval){ clearInterval(countdownInterval); countdownInterval = null; }
-                if(countdownEl) countdownEl.classList.remove('visible');
-            }
-
-            form.addEventListener('submit', function(e){
-                e.preventDefault();
-                const v = (input.value || '').trim().toLowerCase();
-                if(v === '19131896917215'){
-                    hideMsg();
-                    startWarp();
-                } else {
-                    showDenied();
-                }
+            window.addEventListener('load', function(){
+                setTimeout(startWarp, 300);
             });
 
-            const downloadBtn = document.getElementById('downloadBtn');
-            const confirmModal = document.getElementById('confirmModal');
-            const confirmYes = document.getElementById('confirmYes');
-            const confirmCancel = document.getElementById('confirmCancel');
-
-            function showConfirm(){
-                if(!confirmModal) return;
-                confirmModal.classList.add('active');
-                confirmModal.setAttribute('aria-hidden','false');
-            }
-            function hideConfirm(){
-                if(!confirmModal) return;
-                confirmModal.classList.remove('active');
-                confirmModal.setAttribute('aria-hidden','true');
-            }
-
-            if(downloadBtn){
-                downloadBtn.addEventListener('click', function(e){
-                    e.preventDefault();
-                    showConfirm();
-                });
-            }
-
-            if(confirmYes){
-                confirmYes.addEventListener('click', function(){
-                    const file = downloadBtn.getAttribute('data-file') || 'imagem/quebracabeça.png';
-                    const href = encodeURI(file);
-                    const a = document.createElement('a');
-                    a.href = href;
-                    const parts = file.split('/');
-                    a.download = parts[parts.length-1];
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                    hideConfirm();
-                });
-            }
-
-            if(confirmCancel){
-                confirmCancel.addEventListener('click', function(){ hideConfirm(); });
-            }
-
-            if(confirmModal){
-                confirmModal.addEventListener('click', function(e){
-                    if(e.target === confirmModal) hideConfirm();
-                });
-                document.addEventListener('keydown', function(e){
-                    if(e.key === 'Escape') hideConfirm();
-                });
-            }
-
-            // Música de fundo: volume 50% e autoplay garantido após interação
             (function(){
                 const bgMusic = document.getElementById('bgMusic');
                 if(bgMusic) {
-                    bgMusic.volume = 0.3;
-                    // Tenta tocar imediatamente (alguns navegadores bloqueiam)
+                    bgMusic.volume = 0.2;
                     function tryPlay() {
                         bgMusic.play().catch(() => {});
-                    }
-                    // Tenta tocar ao menos na primeira interação do usuário
+                    }E
                     document.addEventListener('click', tryPlay, { once: true });
                     document.addEventListener('keydown', tryPlay, { once: true });
+                    window.addEventListener('load', tryPlay, { once: true });
                 }
             })();
-
         })();
     </script>
 
     <script>
-        // ⚠️ IMPORTANTE: Você precisa substituir os UUIDs abaixo pelos UUIDs REAIS de cada jogador!
-        // Para obter o UUID correto:
-        // 1. Acesse: [https://mcuuid.net/](https://mcuuid.net/)
-        // 2. Digite o nome do jogador Minecraft (ex: "BloodyBody")
-        // 3. Copie o UUID que aparece (formato: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
-        // 4. Substitua nos valores "skin" abaixo
-
-        // Agora usando imagens locais da pasta "cabeças" para cada streamer
         const twitchChannels = [
             { twitch: "bloodybodypan", apelido: "Bloody", skin: "BloodyBody.png" },
             { twitch: "lemandsy", apelido: "Fencyl", skin: "LEMANDSY.png" },
             { twitch: "lukymi_i", apelido: "Lukymi", skin: "aurorab3.png" },
             { twitch: "oimaylon", apelido: "Maylon", skin: "MaylonMM.png" },
-            { twitch: "otrebor_avlis", apelido: "Beto", skin: "MrBoy_PvP.png" },
-            { twitch: "abonappetit", apelido: "Bon", skin: "BonAppetit.png" },
-            { twitch: "JoicinhaRoyal_", apelido: "Joici", skin: "JOICINHAROYAL.png" }
+            { twitch: "otrebor_avlis", apelido: "Beto", skin: "MrBoy_PvP.png" }
         ];
 
         (function(){
@@ -710,4 +527,3 @@
     </script>
 </body>
 </html>
-
