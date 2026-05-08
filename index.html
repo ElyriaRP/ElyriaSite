@@ -239,6 +239,56 @@
             display:inline-block;
             vertical-align:middle;
         }
+
+        /* ===== ARG/EASTER EGG ===== */
+        #argModal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0; top: 0; right: 0; bottom: 0;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.3s ease;
+        }
+        #argModal.active {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .arg-box {
+            background: rgba(24,28,48,0.95);
+            border-radius: 20px;
+            box-shadow: 0 0 60px rgba(127,231,255,0.4);
+            padding: 60px 80px;
+            text-align: center;
+            color: #fff;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 48px;
+            border: 2px solid rgba(127,231,255,0.3);
+            animation: zoomIn 0.4s ease;
+            letter-spacing: 3px;
+            text-shadow: 0 0 40px rgba(127,231,255,0.8);
+        }
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.3) rotate(-10deg);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+        @media (max-width: 600px) {
+            .arg-box {
+                padding: 40px 30px;
+                font-size: 32px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -292,7 +342,12 @@
 
     <audio id="bgMusic" src="Musicas/IWillCatchUp!.mp3" loop></audio>
 
-
+    <!-- ARG EASTER EGG MODAL -->
+    <div id="argModal" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="arg-box">
+            BAZINGA!
+        </div>
+    </div>
 
     <script>
         (function(){
@@ -332,6 +387,55 @@
                     window.addEventListener('load', tryPlay, { once: true });
                 }
             })();
+        })();
+    </script>
+
+    <!-- ARG EASTER EGG SCRIPT -->
+    <script>
+        (function(){
+            const argModal = document.getElementById('argModal');
+            if(!argModal) return;
+
+            let keyCombo = {
+                shiftPressed: false,
+                ctrlPressed: false,
+                iPressed: false
+            };
+
+            document.addEventListener('keydown', function(e){
+                if(e.key === 'Shift') keyCombo.shiftPressed = true;
+                if(e.ctrlKey || e.metaKey) keyCombo.ctrlPressed = true;
+                if(e.key === 'i' || e.key === 'I') keyCombo.iPressed = true;
+
+                // Detecta Shift + Ctrl + I
+                if(keyCombo.shiftPressed && keyCombo.ctrlPressed && keyCombo.iPressed){
+                    e.preventDefault();
+                    argModal.classList.add('active');
+                    argModal.setAttribute('aria-hidden', 'false');
+                    
+                    // Fecha o modal após 3 segundos
+                    setTimeout(()=> {
+                        argModal.classList.remove('active');
+                        argModal.setAttribute('aria-hidden', 'true');
+                        keyCombo = { shiftPressed: false, ctrlPressed: false, iPressed: false };
+                    }, 3000);
+                }
+            });
+
+            document.addEventListener('keyup', function(e){
+                if(e.key === 'Shift') keyCombo.shiftPressed = false;
+                if(!e.ctrlKey && !e.metaKey) keyCombo.ctrlPressed = false;
+                if(e.key === 'i' || e.key === 'I') keyCombo.iPressed = false;
+            });
+
+            // Fecha ao clicar fora
+            argModal.addEventListener('click', function(e){
+                if(e.target === argModal){
+                    argModal.classList.remove('active');
+                    argModal.setAttribute('aria-hidden', 'true');
+                    keyCombo = { shiftPressed: false, ctrlPressed: false, iPressed: false };
+                }
+            });
         })();
     </script>
 
