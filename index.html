@@ -31,80 +31,7 @@
             filter: blur(3px);
         }
 
-        /* ===== COUNTDOWN STYLES ===== */
-        #countdown {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1000;
-            text-align: center;
-            font-family: 'Press Start 2P', monospace;
-            color: #fff;
-            pointer-events: none;
-        }
-        #countdown .label {
-            font-size: 14px;
-            color: #a7e3ff;
-            margin-bottom: 16px;
-            text-shadow: 0 0 20px rgba(127,231,255,0.5);
-            letter-spacing: 2px;
-        }
-        #countdown .time {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            align-items: center;
-        }
-        #countdown .time-block {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        #countdown .time-block .value {
-            font-size: 48px;
-            color: #7fe7ff;
-            text-shadow: 0 0 30px rgba(127,231,255,0.7), 0 0 60px rgba(127,231,255,0.4);
-            background: rgba(8,12,20,0.6);
-            padding: 16px 24px;
-            border-radius: 12px;
-            border: 1px solid rgba(127,231,255,0.15);
-            min-width: 90px;
-        }
-        #countdown .time-block .unit {
-            font-size: 10px;
-            color: #7fe7ff;
-            margin-top: 8px;
-            opacity: 0.8;
-            letter-spacing: 1px;
-        }
-        #countdown .separator {
-            font-size: 40px;
-            color: #7fe7ff;
-            text-shadow: 0 0 20px rgba(127,231,255,0.6);
-            animation: blink 1s ease-in-out infinite;
-        }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        #countdown.finished .time-block .value {
-            color: #4eff9f;
-            text-shadow: 0 0 30px rgba(78,255,159,0.7);
-        }
-        @media (max-width: 600px) {
-            #countdown .time-block .value {
-                font-size: 28px;
-                padding: 12px 16px;
-                min-width: 60px;
-            }
-            #countdown .separator {
-                font-size: 24px;
-            }
-            #countdown .time {
-                gap: 10px;
-            }
-        }
+
 
         /* ===== LOGO (FORA DO OVERLAY) ===== */
         .main-logo {
@@ -323,26 +250,7 @@
     <!-- LOGO (FORA DO OVERLAY) -->
     <img src="logo/elyria2.png" alt="Elyria" class="main-logo" />
 
-    <!-- COUNTDOWN -->
-    <div id="countdown">
-        <div class="label">Nos vemos mais tarde!</div>
-        <div class="time">
-            <div class="time-block">
-                <span class="value" id="hours">00</span>
-                <span class="unit">HORAS</span>
-            </div>
-            <span class="separator">:</span>
-            <div class="time-block">
-                <span class="value" id="minutes">00</span>
-                <span class="unit">MINUTOS</span>
-            </div>
-            <span class="separator">:</span>
-            <div class="time-block">
-                <span class="value" id="seconds">00</span>
-                <span class="unit">SEGUNDOS</span>
-            </div>
-        </div>
-    </div>
+
 
     <div id="warpOverlay" aria-hidden="true">
         <!-- Logo removida daqui -->
@@ -384,53 +292,7 @@
 
     <audio id="bgMusic" src="Musicas/IWillCatchUp!.mp3" loop></audio>
 
-    <!-- COUNTDOWN SCRIPT -->
-    <script>
-        (function(){
-            const hoursEl = document.getElementById('hours');
-            const minutesEl = document.getElementById('minutes');
-            const secondsEl = document.getElementById('seconds');
-            const countdownEl = document.getElementById('countdown');
 
-            function getTarget14h() {
-                const now = new Date();
-                const target = new Date(now);
-                target.setHours(14, 0, 0, 0);
-                if (now >= target) {
-                    target.setDate(target.getDate() + 1);
-                }
-                return target;
-            }
-
-            let targetDate = getTarget14h();
-
-            function updateCountdown() {
-                const now = new Date();
-                const diff = targetDate - now;
-
-                if (diff <= 0) {
-                    hoursEl.textContent = '00';
-                    minutesEl.textContent = '00';
-                    secondsEl.textContent = '00';
-                    countdownEl.classList.add('finished');
-                    document.querySelector('#countdown .label').textContent = 'SERVIDOR ABERTO!';
-                    return;
-                }
-
-                const totalSeconds = Math.floor(diff / 1000);
-                const hours = Math.floor(totalSeconds / 3600);
-                const minutes = Math.floor((totalSeconds % 3600) / 60);
-                const seconds = totalSeconds % 60;
-
-                hoursEl.textContent = String(hours).padStart(2, '0');
-                minutesEl.textContent = String(minutes).padStart(2, '0');
-                secondsEl.textContent = String(seconds).padStart(2, '0');
-            }
-
-            updateCountdown();
-            setInterval(updateCountdown, 1000);
-        })();
-    </script>
 
     <script>
         (function(){
