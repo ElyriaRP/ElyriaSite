@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ElyriaRP | O Novo Mundo</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
@@ -10,6 +10,15 @@
     <link rel="icon" type="image/png" href="logo/elyriaatual.png">
 
     <style>
+        /* ===== CONFIGURAÇÃO GLOBAL DE ZOOM ===== */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            min-height: 100vh;
+            zoom: 0.8; /* Define o zoom nativo da página em 80% */
+        }
+
         /* ===== NAVBAR ===== */
         .navbar {
             position: fixed;
@@ -44,30 +53,6 @@
             width: 1px;
             height: 35px;
             background: rgba(255, 255, 255, 0.15);
-        }
-
-        .navbar-menu {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .navbar-menu a {
-            color: rgba(255, 255, 255, 0.7);
-            text-decoration: none;
-            font-size: 14px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            transition: color 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .navbar-menu a:hover {
-            color: rgba(255, 255, 255, 1);
         }
 
         .navbar-right {
@@ -151,12 +136,13 @@
             transform: translateY(-2px);
         }
 
+        /* CORREÇÃO MOBILE: Área central flexível com rolagem caso falte espaço vertical */
         .hero-section {
             position: fixed;
             top: 70px;
             left: 0;
             right: 0;
-            bottom: 0;
+            bottom: 120px; /* Limita acima do painel inferior */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -165,19 +151,8 @@
             pointer-events: auto;
             text-align: center;
             padding: 20px;
-            width: 100vw;
             box-sizing: border-box;
-        }
-
-        .hero-logo {
-            height: 280px;
-            width: auto;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            margin-bottom: 24px;
-            animation: logo-float 3.8s ease-in-out infinite;
-            filter: drop-shadow(0 6px 18px rgba(0,0,0,0.6));
+            overflow-y: auto; /* Permite scroll vertical se os botões não couberem na tela */
         }
 
         .hero-text {
@@ -198,21 +173,6 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             letter-spacing: 0.5px;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
-        }
-
-        @media (max-width: 768px) {
-            .hero-text {
-                font-size: 32px;
-            }
-
-            .hero-logo {
-                height: 200px;
-                margin-bottom: 16px;
-            }
-
-            .hero-subtitle {
-                font-size: 14px;
-            }
         }
 
         /* ===== COUNTDOWN SECTION ===== */
@@ -285,27 +245,6 @@
             margin: 0 5px;
         }
 
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            min-height: 100vh;
-        }
-
-        #bgVideo {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
-            height: auto;
-            transform: translate(-50%, -50%);
-            z-index: -1;
-            object-fit: cover;
-            filter: blur(3px);
-        }
-
         #bgImage {
             position: fixed;
             top: 0;
@@ -317,7 +256,6 @@
             filter: blur(3px);
         }
 
-        /* ===== NEVE ===== */
         #snowCanvas {
             position: fixed;
             top: 0;
@@ -328,24 +266,71 @@
             z-index: 5;
         }
 
-        /* ===== LOGO (DEPRECATED - Using hero-logo instead) ===== */
-        .main-logo {
-            display: none;
-        }
+        /* ===== ADAPTAÇÕES ESPECÍFICAS PARA CELULAR ===== */
+        @media (max-width: 768px) {
+            .hero-text {
+                font-size: 28px; /* Texto menor para não quebrar a tela inteira */
+            }
 
-        @keyframes logo-float{
-            0%   { transform: translateX(-50%) translateY(0); }
-            50%  { transform: translateX(-50%) translateY(-8px); }
-            100% { transform: translateX(-50%) translateY(0); }
-        }
+            .hero-subtitle {
+                font-size: 14px;
+                padding: 0 10px;
+            }
 
-        @media (prefers-reduced-motion: reduce){
-            .hero-logo{
-                animation: none;
+            .download-btn {
+                font-size: 14px;
+                padding: 12px 20px;
+                margin-top: 16px;
+            }
+
+            .play-mini-btn {
+                font-size: 12px;
+                padding: 10px 18px;
+            }
+
+            .hero-section {
+                bottom: 100px; /* Adapta o espaço inferior */
+                top: 60px;
+            }
+
+            .navbar {
+                height: 60px;
+                padding: 0 16px;
+            }
+
+            .navbar-logo {
+                height: 40px;
+            }
+
+            /* Reduz o painel do cronômetro para caber em telas finas sem esmagar */
+            .countdown-section {
+                height: 100px;
+            }
+
+            .countdown-title {
+                font-size: 11px;
+                margin-bottom: 6px;
+            }
+
+            .countdown-timer {
+                gap: 10px;
+            }
+
+            .countdown-number {
+                font-size: 38px;
+                min-width: 45px;
+            }
+
+            .countdown-label {
+                font-size: 10px;
+            }
+
+            .countdown-separator {
+                font-size: 22px;
             }
         }
 
-        /* ===== OVERLAY (SEM A LOGO) ===== */
+        /* ===== ANIMAÇÕES E INTERFACES EXTRAS ===== */
         #warpOverlay{
             position:fixed;
             inset:0;
@@ -488,12 +473,6 @@
         }
         .twitch-modal-close:hover {
             opacity: 1;
-        }
-        @media (max-width: 520px){
-            .twitch-modal-box {
-                padding: 18px 6vw 16px 6vw;
-                font-size: 11px;
-            }
         }
 
         .twitch-floating {
@@ -730,13 +709,11 @@
             const segundosEl = document.getElementById('countdown-segundos');
 
             function updateCountdown() {
-                // Data alvo: 30 de maio de 2026 às 19:30
-                const targetDate = new Date(2026, 4, 30, 19, 30, 0).getTime(); // Mês é 0-indexed
+                const targetDate = new Date(2026, 4, 30, 19, 30, 0).getTime(); 
                 const now = new Date().getTime();
                 const timeLeft = targetDate - now;
 
                 if (timeLeft <= 0) {
-                    // Evento iniciado
                     diasEl.textContent = '00';
                     horasEl.textContent = '00';
                     minutosEl.textContent = '00';
@@ -744,20 +721,17 @@
                     return;
                 }
 
-                // Calcular unidades de tempo
                 const dias = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
                 const horas = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutos = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
                 const segundos = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
-                // Formatar com zeros à esquerda
                 diasEl.textContent = String(dias).padStart(2, '0');
                 horasEl.textContent = String(horas).padStart(2, '0');
                 minutosEl.textContent = String(minutos).padStart(2, '0');
                 segundosEl.textContent = String(segundos).padStart(2, '0');
             }
 
-            // Atualizar imediatamente e depois a cada segundo
             updateCountdown();
             setInterval(updateCountdown, 1000);
         })();
