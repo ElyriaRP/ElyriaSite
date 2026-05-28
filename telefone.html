@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>ElyriaRP | Telefone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg1: #02030a;
+            --bg2: #081028;
+            --accent: #7fe7ff;
+            --phone-case: #5a3825; 
+            --pad-plate: #111111;  
+            --key-bg: #1c1c1c;     
+            --key-text: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(180deg, var(--bg1), var(--bg2));
+            color: #fff;
+            font-family: 'Press Start 2P', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .phone-wrapper {
+            background-color: var(--phone-case);
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.9),
+                inset 2px 2px 5px rgba(255,255,255,0.2),
+                inset -2px -2px 5px rgba(0,0,0,0.5);
+            width: 290px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            border: 1px solid rgba(0,0,0,0.4);
+        }
+
+        .phone-display {
+            width: 100%;
+            height: 50px;
+            background-color: #050a05;
+            border: 3px solid #222;
+            border-radius: 6px;
+            box-sizing: border-box;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            font-family: 'VT323', monospace;
+            font-size: 32px;
+            color: #33ff33;
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px rgba(51, 255, 51, 0.6);
+            overflow: hidden;
+            transition: color 0.3s, text-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .keypad-plate {
+            background-color: var(--pad-plate);
+            padding: 20px 15px 15px 15px;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            gap: 15px 12px;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.9);
+            border-bottom: 2px solid rgba(255,255,255,0.05);
+            position: relative;
+        }
+
+        .retro-key {
+            width: 60px;
+            height: 52px;
+            background-color: var(--key-bg);
+            color: var(--key-text);
+            border: none;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                inset 2px 2px 3px rgba(255, 255, 255, 0.12),
+                inset -2px -3px 4px rgba(0, 0, 0, 0.85),
+                2px 3px 5px rgba(0, 0, 0, 0.6);
+            transition: transform 0.04s, box-shadow 0.04s;
+        }
+
+        .retro-key:active {
+            transform: translateY(3px) translateX(0px);
+            box-shadow: 
+                inset 3px 4px 6px rgba(0, 0, 0, 0.95),
+                0px 1px 1px rgba(0, 0, 0, 0.2);
+        }
+
+        .phone-label {
+            grid-column: span 3;
+            background-color: #d1c7bd;
+            color: #222;
+            font-family: monospace;
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+            padding: 2px 5px;
+            border-radius: 3px;
+            margin-top: 5px;
+            box-shadow: inset 1px 1px 3px rgba(0,0,0,0.5);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .back-link {
+            margin-top: 15px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 10px;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .back-link:hover {
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="chamada-audio" src="Musicas/CHAMADA A COBRAR.mp3" preload="auto"></audio>
+    <audio id="richard-audio" src="Musicas/ChamadaRichard.mp3" preload="auto"></audio>
+    <audio id="ocupado-audio" src="Musicas/Ocupado.mp3" preload="auto" loop></audio>
+
+    <div style="display: flex; flex-direction: column; align-items: center;">
+        <div class="phone-wrapper">
+            <div class="phone-display" id="display" title="Clique para desligar"></div>
+
+            <div class="keypad-plate">
+                <button class="retro-key" onclick="pressKey('1')">1</button>
+                <button class="retro-key" onclick="pressKey('2')">2</button>
+                <button class="retro-key" onclick="pressKey('3')">3</button>
+
+                <button class="retro-key" onclick="pressKey('4')">4</button>
+                <button class="retro-key" onclick="pressKey('5')">5</button>
+                <button class="retro-key" onclick="pressKey('6')">6</button>
+
+                <button class="retro-key" onclick="pressKey('7')">7</button>
+                <button class="retro-key" onclick="pressKey('8')">8</button>
+                <button class="retro-key" onclick="pressKey('9')">9</button>
+
+                <button class="retro-key" onclick="pressKey('*')">*</button>
+                <button class="retro-key" onclick="pressKey('0')">0</button>
+                <button class="retro-key" onclick="pressKey('#')">#</button>
+                
+                <div class="phone-label">5521 - 3514</div>
+            </div>
+        </div>
+
+        <a href="aguardando.html" class="back-link">◄ Voltar ao jogo</a>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        const chamadaAudio = document.getElementById('chamada-audio');
+        const richardAudio = document.getElementById('richard-audio');
+        const ocupadoAudio = document.getElementById('ocupado-audio');
+        let currentNumber = "";
+        let audioCtx = null;
+
+        const dtmfFrequencies = {
+            '1': [697, 1209], '2': [697, 1336], '3': [697, 1477],
+            '4': [770, 1209], '5': [770, 1336], '6': [770, 1477],
+            '7': [852, 1209], '8': [852, 1336], '9': [852, 1477],
+            '*': [941, 1209], '0': [941, 1336], '#': [941, 1477]
+        };
+
+        function playDTMF(key) {
+            if (!dtmfFrequencies[key]) return;
+            
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const [freq1, freq2] = dtmfFrequencies[key];
+            const osc1 = audioCtx.createOscillator();
+            const osc2 = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            osc1.type = 'sine'; osc2.type = 'sine';
+            osc1.frequency.value = freq1; osc2.frequency.value = freq2;
+
+            osc1.connect(gainNode); osc2.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.01);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime + 0.15); 
+            gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.18);
+
+            osc1.start(audioCtx.currentTime); osc2.start(audioCtx.currentTime);
+            osc1.stop(audioCtx.currentTime + 0.2); osc2.stop(audioCtx.currentTime + 0.2);
+        }
+
+        // ==============================================
+        // SISTEMA DE ENCADEAMENTO DOS ÁUDIOS
+        // ==============================================
+        chamadaAudio.addEventListener('ended', () => {
+            richardAudio.play().catch(err => console.error("Erro no Richard: ", err));
+        });
+
+        richardAudio.addEventListener('ended', () => {
+            ocupadoAudio.play().catch(err => console.error("Erro no Ocupado: ", err));
+        });
+
+        // ==============================================
+        // LÓGICA DE DIGITAÇÃO (CORRIGIDA COM PROTEÇÃO)
+        // ==============================================
+        function pressKey(num) {
+            // PROTEÇÃO CRÍTICA: Se o bip falhar por bloqueio do PC, o resto do código continua rodando!
+            try {
+                playDTMF(num); 
+            } catch (e) {
+                console.log("Bip bloqueado temporariamente pelo navegador.");
+            }
+
+            if (currentNumber.length < 15) {
+                currentNumber += num;
+                display.innerText = currentNumber;
+                
+                if (currentNumber === "11973646987") {
+                    display.style.color = "#ff3333";
+                    display.style.textShadow = "0 0 12px rgba(255, 51, 51, 0.8)";
+                    
+                    // AJUSTE DE VOLUME RELATIVO (Richard muito mais destacado)
+                    chamadaAudio.volume = 0.15;  // Som da operadora bem baixinho (15%)
+                    richardAudio.volume = 1.0;   // Voz do Richard no TALO (100%)
+                    ocupadoAudio.volume = 0.15;  // Sinal de ocupado bem baixinho (15%)
+                    
+                    chamadaAudio.currentTime = 0;
+                    chamadaAudio.play().catch(error => {
+                        console.error("Erro ao reproduzir arquivo inicial: ", error);
+                    });
+                }
+            }
+        }
+
+        // ==============================================
+        // BOTÃO DE DESLIGAR (Clique no visor verde)
+        // ==============================================
+        display.addEventListener('click', () => {
+            currentNumber = "";
+            display.innerText = "";
+            
+            display.style.color = "#33ff33";
+            display.style.textShadow = "0 0 8px rgba(51, 255, 51, 0.6)";
+            
+            chamadaAudio.pause();
+            chamadaAudio.currentTime = 0;
+            
+            richardAudio.pause();
+            richardAudio.currentTime = 0;
+            
+            ocupadoAudio.pause();
+            ocupadoAudio.currentTime = 0;
+        });
+    </script>
+</body>
+</html>
