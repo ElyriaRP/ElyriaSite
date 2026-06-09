@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ElyriaRP | O Convite da Raposa</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Paleta temática de Neve / Gelo */
+            --bg-dark: #081028;      /* Fundo da noite */
+            --bg-light: #1e3a8a;     /* Brilho azul escuro no centro */
+            
+            --envelope-color: #f8fafc; /* Branco neve */
+            --flap-side: #e2e8f0;      /* Sombreamento gelo claro */
+            --flap-bottom: #ffffff;    /* Branco puro */
+            --flap-top: #f1f5f9;       /* Branco gelado */
+            
+            --wax-color: #0284c7;    /* Cera azul glacial */
+            --wax-light: #38bdf8;    /* Brilho da cera */
+            
+            --paper-color: #ffffff;  /* Papel do convite branco */
+            --text-color: #0f172a;   /* Texto em azul marinho quase preto */
+            --border-color: #bae6fd; /* Bordas e detalhes azul claro */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at center, var(--bg-light), var(--bg-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        /* ===== NEVE NO FUNDO ===== */
+        #snowCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* ===== ENVELOPE ===== */
+        .envelope-container {
+            position: relative;
+            width: 320px;
+            height: 220px;
+            cursor: pointer;
+            transition: transform 0.8s ease, opacity 0.6s ease;
+            z-index: 10;
+        }
+
+        .envelope-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .envelope-body {
+            position: absolute;
+            inset: 0;
+            background: var(--envelope-color);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .flap-left {
+            position: absolute; inset: 0;
+            background: var(--flap-side);
+            clip-path: polygon(0 0, 50% 50%, 0 100%);
+            z-index: 2;
+        }
+        .flap-right {
+            position: absolute; inset: 0;
+            background: var(--flap-side);
+            clip-path: polygon(100% 0, 50% 50%, 100% 100%);
+            z-index: 2;
+        }
+        .flap-bottom {
+            position: absolute; inset: 0;
+            background: var(--flap-bottom);
+            clip-path: polygon(0 100%, 50% 45%, 100% 100%);
+            z-index: 3;
+            filter: drop-shadow(0 -3px 4px rgba(0,0,0,0.05));
+        }
+
+        .flap-top-wrapper {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 65%;
+            transform-origin: top center;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5;
+            transform-style: preserve-3d;
+        }
+
+        .flap-top-shape {
+            width: 100%; height: 100%;
+            background: var(--flap-top);
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+        }
+
+        .flap-top-shadow {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: transparent;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+            z-index: 4;
+            pointer-events: none;
+        }
+        .flap-top-shadow::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.5);
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+        }
+
+        /* ===== SELO DE CERA GLACIAL ===== */
+        .wax-seal {
+            position: absolute;
+            bottom: -22px;
+            left: calc(50% - 25px);
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle at 30% 30%, var(--wax-light), var(--wax-color));
+            border-radius: 52% 48% 55% 45%; 
+            box-shadow: 
+                inset 0 0 6px rgba(0,0,0,0.4),
+                inset 2px 2px 4px rgba(255,255,255,0.6),
+                0 5px 8px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s;
+            z-index: 6;
+        }
+
+        .fox-icon {
+            width: 26px;
+            height: 26px;
+            fill: #ffffff;
+            filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3));
+            transform: translateY(1px); 
+        }
+
+        .click-hint {
+            position: absolute;
+            bottom: -50px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            letter-spacing: 2px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        }
+
+        /* ===== CARTÃO DE CONVITE ===== */
+        .invitation-card {
+            position: absolute;
+            width: min(90vw, 420px);
+            background: var(--paper-color);
+            padding: 35px 25px;
+            box-sizing: border-box;
+            border-radius: 6px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            text-align: center;
+            opacity: 0;
+            transform: translateY(40px) scale(0.9);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            pointer-events: none;
+            z-index: 20;
+            
+            border: 1px solid var(--border-color);
+            outline: 1px solid var(--border-color);
+            outline-offset: -8px;
+        }
+
+        .invitation-card.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        /* ===== FOTO ===== */
+        .invite-image-container {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.15);
+            background-color: #e0f2fe; 
+            
+            /* CAMINHO CORRIGIDO APONTANDO PARA A PASTA 'imagem' */
+            background-image: url('imagem/ojantar.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .img-error-text {
+            color: #0284c7;
+            font-family: sans-serif;
+            font-size: 11px;
+            padding: 20px;
+            text-align: center;
+            z-index: 0;
+        }
+
+        .invite-text {
+            font-size: 16px;
+            color: var(--text-color);
+            line-height: 1.7;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .invite-signature {
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            color: var(--wax-color);
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .ornament {
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+            margin: 15px auto 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="snowCanvas"></canvas>
+
+    <div class="invitation-card" id="invitationCard">
+        
+        <div class="invite-image-container">
+            <span class="img-error-text">''.</span>
+        </div>
+        
+        <div class="invite-text">
+            "Parece que Elyria não chamará mais ninguém por enquanto, então eu adoraria receber todos vocês para o primeiro evento em minha mansão! Venham participar deste momento especial e receber o último "bem-vindos" desta nova jornada!"
+        </div>
+        <div class="invite-signature">A Raposa</div>
+        <div class="ornament"></div>
+    </div>
+
+    <div class="envelope-container" id="envelope" onclick="openLetter()">
+        <div class="envelope-body">
+            <div class="flap-left"></div>
+            <div class="flap-right"></div>
+            <div class="flap-bottom"></div>
+        </div>
+        
+        <div class="flap-top-shadow" id="flapShadow"></div>
+
+        <div class="flap-top-wrapper" id="flapTop">
+            <div class="flap-top-shape"></div>
+            
+            <div class="wax-seal" id="waxSeal">
+                <svg class="fox-icon" viewBox="0 0 24 24">
+                    <polygon points="12,21 3,10 6,3 12,8 18,3 21,10" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="click-hint" id="clickHint">Abrir Convite</div>
+    </div>
+
+    <script>
+        let isOpened = false;
+
+        function openLetter() {
+            if (isOpened) return;
+            isOpened = true;
+
+            const envelope = document.getElementById('envelope');
+            const flapTop = document.getElementById('flapTop');
+            const flapShadow = document.getElementById('flapShadow');
+            const waxSeal = document.getElementById('waxSeal');
+            const clickHint = document.getElementById('clickHint');
+            const invitationCard = document.getElementById('invitationCard');
+
+            waxSeal.style.opacity = '0';
+            clickHint.style.opacity = '0';
+            flapShadow.style.opacity = '0';
+            flapTop.style.transform = 'rotateX(180deg)';
+
+            setTimeout(() => {
+                envelope.style.transform = 'translateY(100px) scale(0.9)';
+                envelope.style.opacity = '0';
+                envelope.style.pointerEvents = 'none';
+
+                setTimeout(() => {
+                    invitationCard.classList.add('visible');
+                }, 400);
+
+            }, 700);
+        }
+
+        // ==========================================
+        // SISTEMA DE NEVE 
+        // ==========================================
+        const canvas = document.getElementById('snowCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Snowflake {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height - height;
+                this.size = Math.random() * 3 + 1;
+                this.speedY = Math.random() * 1.5 + 0.5;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.baseSpeedX = this.speedX;
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                this.speedX = this.baseSpeedX + Math.sin(this.y / 50) * 0.5;
+
+                if (this.y > height || this.x < -20 || this.x > width + 20) {
+                    this.y = -10;
+                    this.x = Math.random() * width;
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'; 
+                ctx.fill();
+            }
+        }
+
+        function initSnow() {
+            particles = [];
+            const numParticles = Math.min(window.innerWidth / 5, 200); 
+            for (let i = 0; i < numParticles; i++) {
+                particles.push(new Snowflake());
+            }
+        }
+
+        function animateSnow() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateSnow);
+        }
+
+        initSnow();
+        animateSnow();
+    </script>
+</body>
+</html>
