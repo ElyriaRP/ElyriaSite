@@ -207,7 +207,6 @@
             box-shadow: 0 4px 15px rgba(2, 132, 199, 0.15);
             background-color: #e0f2fe; 
             
-            /* CAMINHO CORRIGIDO APONTANDO PARA A PASTA 'imagem' */
             background-image: url('imagem/ojantar.png');
             background-size: cover;
             background-position: center;
@@ -227,6 +226,20 @@
             padding: 20px;
             text-align: center;
             z-index: 0;
+        }
+
+        /* ===== DETALHE DO HORÁRIO ===== */
+        .invite-time-block {
+            display: inline-block;
+            padding: 6px 16px;
+            border-top: 1px solid var(--wax-color);
+            border-bottom: 1px solid var(--wax-color);
+            margin-bottom: 20px;
+            font-family: 'Cinzel', serif;
+            color: var(--wax-color);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
         }
 
         .invite-text {
@@ -263,6 +276,10 @@
             <span class="img-error-text">''.</span>
         </div>
         
+        <div class="invite-time-block">
+            ÀS 19H00 | 23h00 PT
+        </div>
+
         <div class="invite-text">
             "Parece que Elyria não chamará mais ninguém por enquanto, então eu adoraria receber todos vocês para o primeiro evento em minha mansão! Venham participar deste momento especial e receber o último "bem-vindos" desta nova jornada!"
         </div>
